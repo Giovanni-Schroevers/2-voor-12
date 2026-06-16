@@ -51,6 +51,10 @@ logs/
 # Ktor
 **/build/
 
+# Local H2 database files (we use Postgres via Docker)
+*.mv.db
+*.trace.db
+
 # Misc
 *.bak
 *.tmp

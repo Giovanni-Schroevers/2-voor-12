@@ -1,15 +1,21 @@
 [versions]
 exposed = "1.2.0"
 h2 = "2.4.240"
+koog = "1.0.0"
+koog-additions = "1.0.0-beta"
 kotlin = "2.3.21"
 logback = "1.5.21"
+r2dbcPostgresql = "1.1.1.RELEASE"
 
 [libraries]
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
 h2database-h2 = { module = "com.h2database:h2", version.ref = "h2" }
 h2database-r2dbc = { module = "io.r2dbc:r2dbc-h2", version = "1.1.0.RELEASE" }
+koog-agents = { module = "ai.koog:koog-agents", version.ref = "koog" }
+koog-agents-additions = { module = "ai.koog:koog-agents-additions", version.ref = "koog-additions" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+postgresql-r2dbc = { module = "org.postgresql:r2dbc-postgresql", version.ref = "r2dbcPostgresql" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -28,7 +28,10 @@ dependencies {
     implementation(libs.exposed.r2dbc)
     implementation(libs.h2database.h2)
     implementation(libs.h2database.r2dbc)
+    implementation(libs.koog.agents)
+    implementation(libs.koog.agents.additions)
     implementation(libs.logback.classic)
+    implementation(libs.postgresql.r2dbc)
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)

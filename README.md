@@ -1,37 +1,69 @@
 # 2-voor-12
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Backend for a digital version of the Dutch quiz game **2 voor 12 (Twee voor twaalf)**.
 
-Here are some useful links to get you started:
+## Stack
 
-* [Ktor Documentation](https://ktor.io/docs/home.html)
-* [Ktor GitHub page](https://github.com/ktorio/ktor)
-* [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). [Request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up).
+- **Ktor** (JVM / Netty) — HTTP server
+- **Exposed** (R2DBC) — database access
+- **PostgreSQL** — database, run via Docker Compose
+- **Koog** + **Google Gemini** — AI agent integration
+- **JWT** — admin authentication
 
-## Features
+## Prerequisites
 
-Here's a list of features included in this project:
+- JDK 21
+- Docker (for the PostgreSQL database)
 
-| Name                                                                                  | Description                                                                        |
-|---------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|
-| [Authentication](https://start.ktor.io/p/io.ktor/server-auth)                         | Provides extension point for handling the Authorization header                     |
-| [Authentication JWT](https://start.ktor.io/p/io.ktor/server-auth-jwt)                 | Handles JSON Web Token (JWT) bearer authentication scheme                          |
-| [Content Negotiation](https://start.ktor.io/p/io.ktor/server-content-negotiation)     | Provides automatic content conversion according to Content-Type and Accept headers |
-| [kotlinx.serialization](https://start.ktor.io/p/io.ktor/server-kotlinx-serialization) | Handles JSON serialization using kotlinx.serialization library                     |
-| [Exposed](https://start.ktor.io/p/org.jetbrains/server-exposed)                       | Adds Exposed database to your application                                          |
-| [WebSockets](https://start.ktor.io/p/io.ktor/server-websockets)                       | Adds WebSocket protocol support for bidirectional client connections               |
-| [CORS](https://start.ktor.io/p/io.ktor/server-cors)                                   | Enables Cross-Origin Resource Sharing (CORS)                                       |
+## Configuration
 
-## Building & Running
+Copy the example env file and fill in your values:
 
-To build or run the project, use one of the following tasks:
+```bash
+cp .env.example .env
+```
 
-| Task | Description |
-|------|-------------|
+| Variable                                    | Purpose                                              | Default     |
+|---------------------------------------------|------------------------------------------------------|-------------|
+| `GOOGLE_API_KEY`                            | Google Gemini API key (https://aistudio.google.com/apikey) | — (required) |
+| `ADMIN_PASSWORD`                            | Shared password for `POST /api/admin/auth`           | — (required) |
+| `JWT_SECRET`                                | Secret used to sign admin JWTs                        | `secret`    |
+| `DB_HOST` / `DB_PORT` / `DB_NAME` / `DB_USER` / `DB_PASSWORD` | PostgreSQL connection             | matches `docker-compose.yml` |
 
-If the server starts successfully, you'll see the following output:
+## Running
+
+Start the database:
+
+```bash
+docker compose up -d db
+```
+
+Load the environment and start the server:
+
+```bash
+set -a; source .env; set +a
+./gradlew run
+```
+
+The server starts at http://0.0.0.0:8080. The optional Adminer DB UI (via Docker) is at http://localhost:8081.
+
+## Endpoints
+
+| Method | Path               | Description                                  |
+|--------|--------------------|----------------------------------------------|
+| GET    | `/`                | Health check                                 |
+| POST   | `/api/admin/auth`  | Exchange `{ "password": "..." }` for a JWT   |
+
+Management endpoints live under `/api/admin` and are protected by the JWT issued from `/api/admin/auth`.
+
+## Project structure
 
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+src/main/kotlin/
+├── model/          # Domain models and enums (e.g. Question)
+├── repository/     # Data access (Exposed table definitions + CRUD)
+├── Admin.kt        # /api/admin endpoints
+├── Exposed.kt      # Database connection + schema registration
+├── Security.kt     # JWT configuration
+└── ...             # Other Ktor module configuration
 ```
