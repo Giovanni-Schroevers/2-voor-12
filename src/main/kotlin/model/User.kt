@@ -23,4 +23,7 @@ data class UserResponse(val id: UInt, val username: String, val email: String, v
 data class UserUpdate(val username: String, val email: String, val avatar: String? = null)
 
 @Serializable
+data class ChangePasswordRequest(val currentPassword: String, val newPassword: String)
+
+@Serializable
 data class UserAuthResponse(val token: String, val user: UserResponse)

@@ -1,6 +1,7 @@
 package com.example.routing
 
 import com.example.JwtConfig
+import com.example.model.ChangePasswordRequest
 import com.example.model.User
 import com.example.model.UserLogin
 import com.example.model.UserRegistration
@@ -40,6 +41,16 @@ fun Route.userRoutes(service: UserService) {
             val data = call.receive<UserUpdate>()
 
             call.respond(service.update(data, id))
+        }
+
+        put("/user/password") {
+            val id = call.principal<JWTPrincipal>()?.subject?.toUIntOrNull()
+                ?: return@put call.respond(HttpStatusCode.Unauthorized)
+
+            val data = call.receive<ChangePasswordRequest>()
+
+            if (service.changePassword(id, data)) call.respond(HttpStatusCode.NoContent)
+            else call.respond(HttpStatusCode.BadRequest, "Current password is incorrect")
         }
 
         delete("/user/delete") {

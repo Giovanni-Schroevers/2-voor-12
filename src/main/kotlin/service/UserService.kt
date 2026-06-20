@@ -2,6 +2,7 @@ package com.example.service
 
 import com.example.JwtConfig
 import com.example.Passwords
+import com.example.model.ChangePasswordRequest
 import com.example.model.User
 import com.example.model.UserAuthResponse
 import com.example.model.UserLogin
@@ -25,4 +26,14 @@ class UserService(private val repository: UserRepository) {
 
     suspend fun update(user: UserUpdate, id: UInt): UserResponse = repository.update(user, id)
     suspend fun delete(id: UInt): Boolean = repository.delete(id)
+
+    /**
+     * Verifies the current password, then stores a hash of the new one.
+     * Returns false if the user is gone or the current password does not match.
+     */
+    suspend fun changePassword(id: UInt, request: ChangePasswordRequest): Boolean {
+        val user = repository.findById(id) ?: return false
+        if (!Passwords.verify(request.currentPassword, user.passwordHash)) return false
+        return repository.updatePassword(id, Passwords.hash(request.newPassword))
+    }
 }

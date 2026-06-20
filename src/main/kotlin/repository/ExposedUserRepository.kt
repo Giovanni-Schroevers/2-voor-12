@@ -5,6 +5,7 @@ import com.example.model.UserRegistration
 import com.example.model.UserResponse
 import com.example.model.UserUpdate
 import kotlinx.coroutines.flow.firstOrNull
+import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.dao.id.UIntIdTable
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.r2dbc.R2dbcDatabase
@@ -41,17 +42,17 @@ class ExposedUserRepository(private val database: R2dbcDatabase): UserRepository
     }
 
     override suspend fun findByUsername(username: String): User? = suspendTransaction(database) {
-        val userData = Users.select(listOf(Users.id, Users.username, Users.email, Users.password, Users.avatar))
+        Users.select(listOf(Users.id, Users.username, Users.email, Users.password, Users.avatar))
             .where { Users.username eq username }
-            .firstOrNull() ?: return@suspendTransaction null
+            .firstOrNull()
+            ?.toUser()
+    }
 
-        User(
-            id = userData[Users.id].value,
-            username = userData[Users.username],
-            email = userData[Users.email],
-            passwordHash = userData[Users.password],
-            avatar = userData[Users.avatar],
-        )
+    override suspend fun findById(id: UInt): User? = suspendTransaction(database) {
+        Users.select(listOf(Users.id, Users.username, Users.email, Users.password, Users.avatar))
+            .where { Users.id eq id }
+            .firstOrNull()
+            ?.toUser()
     }
 
     override suspend fun update(user: UserUpdate, id: UInt): UserResponse = suspendTransaction(database) {
@@ -69,7 +70,21 @@ class ExposedUserRepository(private val database: R2dbcDatabase): UserRepository
         )
     }
 
+    override suspend fun updatePassword(id: UInt, passwordHash: String): Boolean = suspendTransaction(database) {
+        Users.update({ Users.id eq id }) {
+            it[password] = passwordHash
+        } > 0
+    }
+
     override suspend fun delete(id: UInt): Boolean = suspendTransaction(database) {
         Users.deleteWhere { Users.id eq id } > 0
     }
+
+    private fun ResultRow.toUser() = User(
+        id = this[Users.id].value,
+        username = this[Users.username],
+        email = this[Users.email],
+        passwordHash = this[Users.password],
+        avatar = this[Users.avatar],
+    )
 }
