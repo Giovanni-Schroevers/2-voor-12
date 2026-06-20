@@ -1,8 +1,9 @@
 package com.example.routing
 
+import com.example.AvatarStorage
+import com.example.InvalidAvatarException
 import com.example.JwtConfig
 import com.example.model.ChangePasswordRequest
-import com.example.model.User
 import com.example.model.UserLogin
 import com.example.model.UserRegistration
 import com.example.model.UserUpdate
@@ -18,7 +19,7 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 
-fun Route.userRoutes(service: UserService) {
+fun Route.userRoutes(service: UserService, avatars: AvatarStorage) {
     post("/register") {
         val data = call.receive<UserRegistration>()
 
@@ -40,7 +41,28 @@ fun Route.userRoutes(service: UserService) {
 
             val data = call.receive<UserUpdate>()
 
-            call.respond(service.update(data, id))
+            val updated = service.update(data, id)
+                ?: return@put call.respond(HttpStatusCode.NotFound)
+            call.respond(updated)
+        }
+
+        // The single multipart endpoint: upload/replace the authenticated user's avatar image.
+        post("/user/avatar") {
+            val id = call.principal<JWTPrincipal>()?.subject?.toUIntOrNull()
+                ?: return@post call.respond(HttpStatusCode.Unauthorized)
+
+            val form = try {
+                call.receiveAvatarForm(avatars)
+            } catch (e: InvalidAvatarException) {
+                return@post call.respond(HttpStatusCode.BadRequest, e.message ?: "Invalid avatar")
+            }
+
+            val avatarPath = form.avatarPath
+                ?: return@post call.respond(HttpStatusCode.BadRequest, "An 'avatar' file part is required")
+
+            val updated = service.updateAvatar(id, avatarPath)
+                ?: return@post call.respond(HttpStatusCode.NotFound)
+            call.respond(updated)
         }
 
         put("/user/password") {

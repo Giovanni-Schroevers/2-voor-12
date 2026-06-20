@@ -2,7 +2,6 @@ package com.example.repository
 
 import com.example.model.User
 import com.example.model.UserRegistration
-import com.example.model.UserResponse
 import com.example.model.UserUpdate
 import kotlinx.coroutines.flow.firstOrNull
 import org.jetbrains.exposed.v1.core.ResultRow
@@ -35,7 +34,6 @@ class ExposedUserRepository(private val database: R2dbcDatabase): UserRepository
             it[username] = user.username
             it[email] = user.email
             it[password] = user.password
-            it[avatar] = user.avatar
         }
 
         id.value
@@ -55,19 +53,17 @@ class ExposedUserRepository(private val database: R2dbcDatabase): UserRepository
             ?.toUser()
     }
 
-    override suspend fun update(user: UserUpdate, id: UInt): UserResponse = suspendTransaction(database) {
+    override suspend fun update(user: UserUpdate, id: UInt): Boolean = suspendTransaction(database) {
         Users.update({ Users.id eq id }) {
             it[username] = user.username
             it[email] = user.email
-            it[avatar] = user.avatar
-        }
+        } > 0
+    }
 
-        UserResponse(
-            id = id,
-            username = user.username,
-            email = user.email,
-            avatar = user.avatar
-        )
+    override suspend fun updateAvatar(id: UInt, avatar: String): Boolean = suspendTransaction(database) {
+        Users.update({ Users.id eq id }) {
+            it[Users.avatar] = avatar
+        } > 0
     }
 
     override suspend fun updatePassword(id: UInt, passwordHash: String): Boolean = suspendTransaction(database) {

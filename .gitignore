@@ -55,6 +55,9 @@ logs/
 *.mv.db
 *.trace.db
 
+# Uploaded files (avatars, etc.)
+/uploads/
+
 # Misc
 *.bak
 *.tmp

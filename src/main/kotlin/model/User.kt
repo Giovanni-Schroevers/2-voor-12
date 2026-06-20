@@ -12,15 +12,16 @@ data class User(
 )
 
 @Serializable
-data class UserRegistration(val username: String, val email: String, val password: String, val avatar: String? = null)
+data class UserRegistration(val username: String, val email: String, val password: String)
 @Serializable
 data class UserLogin(val username: String, val password: String)
 
 @Serializable
 data class UserResponse(val id: UInt, val username: String, val email: String, val avatar: String? = null)
 
+// Avatar is intentionally absent: it is managed only through POST /user/avatar.
 @Serializable
-data class UserUpdate(val username: String, val email: String, val avatar: String? = null)
+data class UserUpdate(val username: String, val email: String)
 
 @Serializable
 data class ChangePasswordRequest(val currentPassword: String, val newPassword: String)
