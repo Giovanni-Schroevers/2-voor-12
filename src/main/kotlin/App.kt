@@ -3,11 +3,14 @@ package com.example
 import com.example.repository.ExposedQuestionRepository
 import com.example.repository.ExposedUserRepository
 import com.example.routing.adminRoutes
+import com.example.routing.gameRoutes
 import com.example.routing.questionRoutes
 import com.example.routing.userRoutes
 import com.example.service.QuestionAssistantService
 import com.example.service.QuestionService
+import com.example.service.SoloGameService
 import com.example.service.UserService
+import com.example.service.WordService
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.response.*
@@ -33,6 +36,8 @@ suspend fun Application.configureApp(database: R2dbcDatabase) {
     val questionRepository = ExposedQuestionRepository(database).also { it.createSchema() }
     val questionService = QuestionService(questionRepository)
     val questionAssistant = QuestionAssistantService(googleApiKey)
+    val wordService = WordService(googleApiKey)
+    val soloGameService = SoloGameService(questionRepository, wordService)
 
     val avatarDir = File(uploadDir, AvatarStorage.RELATIVE_PREFIX)
     val avatarStorage = AvatarStorage(avatarDir)
@@ -51,6 +56,7 @@ suspend fun Application.configureApp(database: R2dbcDatabase) {
             adminRoutes(adminPassword)
             questionRoutes(questionService, questionAssistant)
             userRoutes(userService, avatarStorage)
+            gameRoutes(soloGameService)
         }
     }
 }

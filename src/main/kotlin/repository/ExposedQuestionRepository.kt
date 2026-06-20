@@ -6,6 +6,7 @@ import com.example.model.Question
 import com.example.model.QuestionRecord
 import com.example.model.QuestionSummary
 import com.example.model.QuestionType
+import com.example.model.RoundInventory
 import com.example.model.TaartpuzzelPuzzle
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.singleOrNull
@@ -206,9 +207,100 @@ class ExposedQuestionRepository(private val database: R2dbcDatabase) : QuestionR
         )
     }
 
+    override suspend fun roundInventory(): RoundInventory = suspendTransaction(database) {
+        val facets = Questions
+            .selectAll()
+            .map {
+                Facet(
+                    type = it[Questions.type],
+                    category = it[Questions.category],
+                    correctLetter = it[Questions.correctLetter].uppercase(),
+                )
+            }
+            .toList()
+
+        RoundInventory(
+            regularByLetter = facets
+                .filter { it.type == QuestionType.REGULAR }
+                .groupingBy { it.correctLetter }
+                .eachCount(),
+            musicLetters = facets
+                .filter { it.type == QuestionType.REGULAR && it.category.equals(MUSIC_CATEGORY, ignoreCase = true) }
+                .map { it.correctLetter }
+                .toSet(),
+            paardensprongLetters = facets
+                .filter { it.type == QuestionType.PAARDENSPRONG }
+                .map { it.correctLetter }
+                .toSet(),
+            taartpuzzelLetters = facets
+                .filter { it.type == QuestionType.TAARTPUZZEL }
+                .map { it.correctLetter }
+                .toSet(),
+        )
+    }
+
+    override suspend fun randomByLetter(
+        letter: String,
+        type: QuestionType,
+        category: String?,
+        exclude: Set<UInt>,
+    ): QuestionRecord? = suspendTransaction(database) {
+        var condition: Op<Boolean> =
+            (Questions.correctLetter.upperCase() eq letter.uppercase()) and (Questions.type eq type)
+        if (category != null) {
+            condition = condition and (Questions.category.lowerCase() eq category.lowercase())
+        }
+        if (exclude.isNotEmpty()) {
+            condition = condition and (Questions.id notInList exclude)
+        }
+
+        val row = Questions.selectAll()
+            .where(condition)
+            .orderBy(Random())
+            .limit(1)
+            .singleOrNull() ?: return@suspendTransaction null
+
+        val id = row[Questions.id].value
+        val paardensprong = if (type == QuestionType.PAARDENSPRONG) {
+            PaardensprongPuzzles.selectAll()
+                .where { PaardensprongPuzzles.question eq id }
+                .map { PaardensprongPuzzle(grid = it[PaardensprongPuzzles.grid]) }
+                .singleOrNull()
+        } else null
+
+        val taartpuzzel = if (type == QuestionType.TAARTPUZZEL) {
+            TaartpuzzelPuzzles.selectAll()
+                .where { TaartpuzzelPuzzles.question eq id }
+                .map {
+                    TaartpuzzelPuzzle(
+                        missingIndex = it[TaartpuzzelPuzzles.missingIndex],
+                        direction = it[TaartpuzzelPuzzles.direction],
+                    )
+                }
+                .singleOrNull()
+        } else null
+
+        QuestionRecord(
+            id = id,
+            question = Question(
+                type = row[Questions.type],
+                category = row[Questions.category],
+                correctAnswer = row[Questions.correctAnswer],
+                correctLetter = row[Questions.correctLetter],
+                questionText = row[Questions.questionText],
+                paardensprong = paardensprong,
+                taartpuzzel = taartpuzzel,
+            ),
+        )
+    }
+
     private data class Facet(
         val type: QuestionType,
         val category: String,
         val correctLetter: String,
     )
+
+    private companion object {
+        const val MUSIC_CATEGORY = "Muziek"
+    }
 }
