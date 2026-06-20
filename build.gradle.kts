@@ -24,6 +24,7 @@ dependencies {
     implementation(ktorLibs.server.cors)
     implementation(ktorLibs.server.netty)
     implementation(ktorLibs.server.websockets)
+    implementation(libs.bcrypt)
     implementation(libs.exposed.core)
     implementation(libs.exposed.r2dbc)
     implementation(libs.h2database.h2)

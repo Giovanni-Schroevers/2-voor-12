@@ -1,4 +1,5 @@
 [versions]
+bcrypt = "0.10.2"
 exposed = "1.2.0"
 h2 = "2.4.240"
 koog = "1.0.0"
@@ -8,6 +9,7 @@ logback = "1.5.21"
 r2dbcPostgresql = "1.1.1.RELEASE"
 
 [libraries]
+bcrypt = { module = "at.favre.lib:bcrypt", version.ref = "bcrypt" }
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
 h2database-h2 = { module = "com.h2database:h2", version.ref = "h2" }
