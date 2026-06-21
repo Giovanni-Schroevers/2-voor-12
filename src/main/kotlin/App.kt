@@ -1,9 +1,11 @@
 package com.example
 
+import com.example.game.LobbyManager
 import com.example.repository.ExposedQuestionRepository
 import com.example.repository.ExposedUserRepository
 import com.example.routing.adminRoutes
 import com.example.routing.gameRoutes
+import com.example.routing.gameSocketRoutes
 import com.example.routing.questionRoutes
 import com.example.routing.userRoutes
 import com.example.service.QuestionAssistantService
@@ -45,6 +47,8 @@ suspend fun Application.configureApp(database: R2dbcDatabase) {
     val userRepository = ExposedUserRepository(database).also { it.createSchema() }
     val userService = UserService(userRepository, avatarStorage)
 
+    val lobbyManager = LobbyManager()
+
     // --- routes ---
     routing {
         get("/") {
@@ -58,5 +62,7 @@ suspend fun Application.configureApp(database: R2dbcDatabase) {
             userRoutes(userService, avatarStorage)
             gameRoutes(soloGameService)
         }
+        // Websocket lives at the root (not under /api): ws://host/ws/lobby
+        gameSocketRoutes(lobbyManager, soloGameService)
     }
 }

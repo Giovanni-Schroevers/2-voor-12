@@ -10,6 +10,11 @@ import com.example.repository.QuestionRepository
 /** Thrown when no satisfiable round could be generated for the current bank. */
 class UnsatisfiableRoundException(message: String) : RuntimeException(message)
 
+/** Produces a playable round for a given puzzle preference. */
+interface RoundGenerator {
+    suspend fun generateRound(preference: PuzzlePreference): SoloRound
+}
+
 /**
  * Builds a solo [SoloRound]: a twaalfletterwoord plus the twelve questions that
  * spell it. The last question is always a regular music question; one of the first
@@ -24,9 +29,9 @@ class SoloGameService(
     private val repository: QuestionRepository,
     private val wordService: WordGenerator,
     private val maxAttempts: Int = 5,
-) {
+) : RoundGenerator {
 
-    suspend fun generateRound(preference: PuzzlePreference): SoloRound {
+    override suspend fun generateRound(preference: PuzzlePreference): SoloRound {
         val inventory = repository.roundInventory()
         val puzzleType = preference.resolveType()
         var feedback: String? = null
