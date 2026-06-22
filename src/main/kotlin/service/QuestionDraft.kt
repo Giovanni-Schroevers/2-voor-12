@@ -27,7 +27,7 @@ data class QuestionDraft(
     val correctLetter: String,
     @property:LLMDescription("The question prompt. Required for REGULAR questions; leave null for puzzle types.")
     val questionText: String? = null,
-    @property:LLMDescription("Only for PAARDENSPRONG questions: the 3x3 grid of exactly 9 letters, row by row.")
+    @property:LLMDescription("Only for PAARDENSPRONG questions: the 8 outer cells of the 3x3 grid, row by row (the unused center cell is omitted), so exactly 8 letters.")
     val paardensprong: PaardensprongPuzzle? = null,
     @property:LLMDescription("Only for TAARTPUZZEL questions: missingIndex is the 0-based position in the answer that is hidden, plus a reading direction (CLOCKWISE or COUNTERCLOCKWISE).")
     val taartpuzzel: TaartpuzzelPuzzle? = null,

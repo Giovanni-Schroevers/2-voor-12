@@ -94,7 +94,7 @@ private fun paardensprong(id: UInt, letter: Char) = QuestionRecord(
         category = "general",
         correctAnswer = "ANSWERAA",
         correctLetter = letter.toString(),
-        paardensprong = PaardensprongPuzzle(grid = "ABCDEFGHI"),
+        paardensprong = PaardensprongPuzzle(grid = "ABCDEFGH"),
     ),
 )
 

@@ -39,7 +39,7 @@ class ExposedQuestionRepository(private val database: R2dbcDatabase) : QuestionR
 
     object PaardensprongPuzzles : Table("paardensprong_puzzles") {
         val question = reference("question_id", Questions, onDelete = ReferenceOption.CASCADE)
-        val grid = varchar("grid", 9)
+        val grid = varchar("grid", 8)
         override val primaryKey = PrimaryKey(question)
     }
 

@@ -9,8 +9,9 @@ enum class QuestionType { REGULAR, PAARDENSPRONG, TAARTPUZZEL }
 enum class Direction { CLOCKWISE, COUNTERCLOCKWISE }
 
 /**
- * Paardensprong (knight's move) detail: a 3x3 grid of letters, stored row-major
- * as 9 characters. Knight's moves through the grid spell the 8-letter answer.
+ * Paardensprong (knight's move) detail: the 8 outer cells of a 3x3 grid, stored
+ * row-major as 8 characters (the center cell is unused and omitted). Knight's
+ * moves through the grid spell the 8-letter answer.
  */
 @Serializable
 data class PaardensprongPuzzle(
@@ -58,7 +59,7 @@ data class Question(
             QuestionType.PAARDENSPRONG -> {
                 require(paardensprong != null) { "PAARDENSPRONG questions require paardensprong data" }
                 require(taartpuzzel == null) { "PAARDENSPRONG questions must not carry taartpuzzel data" }
-                require(paardensprong.grid.length == 9) { "paardensprong grid must be 9 letters (3x3)" }
+                require(paardensprong.grid.length == 8) { "paardensprong grid must be 8 letters (3x3 outer cells)" }
             }
             QuestionType.TAARTPUZZEL -> {
                 require(taartpuzzel != null) { "TAARTPUZZEL questions require taartpuzzel data" }

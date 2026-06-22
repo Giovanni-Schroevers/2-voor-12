@@ -34,7 +34,7 @@ class QuestionAssistantService(apiKey: String) {
             - type is REGULAR, PAARDENSPRONG, or TAARTPUZZEL.
             - correctLetter is a single uppercase letter, usually the first letter of the answer.
             - REGULAR questions have questionText and no puzzle data.
-            - PAARDENSPRONG includes a 3x3 grid of exactly 9 letters; its answer is an 8-letter word.
+            - PAARDENSPRONG includes the 8 outer cells of a 3x3 grid (center omitted), so exactly 8 letters; its answer is an 8-letter word.
             - TAARTPUZZEL: its answer is a 9-letter word; set missingIndex to the 0-based position
               of the hidden letter in the answer and pick a reading direction.
 
