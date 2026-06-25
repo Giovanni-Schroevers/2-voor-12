@@ -29,7 +29,9 @@ enum class PuzzlePreference {
 
 /**
  * A generated solo round: the twaalfletterwoord and the twelve questions whose
- * [Question.correctLetter] values, in order, spell that word.
+ * [Question.correctLetter] values together spell that word. The first eleven are
+ * shuffled so the answers don't reveal the word left-to-right; the last question
+ * is always the regular music question (the muziekvraag finale).
  *
  * The questions carry their full data including answers — solo play is
  * client-authoritative, so the client runs its own timer and scoring. Online

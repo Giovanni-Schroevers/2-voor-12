@@ -126,10 +126,9 @@ class SoloGameServiceTest {
 
         assertEquals(word, round.word)
         assertEquals(12, round.questions.size)
-        assertEquals(word, round.questions.joinToString("") { it.correctLetter })
+        assertEquals(word.toList().sorted(), round.questions.map { it.correctLetter.single() }.sorted())
         val puzzles = round.questions.withIndex().filter { it.value.type == QuestionType.PAARDENSPRONG }
         assertEquals(1, puzzles.size)
-        assertEquals(2, puzzles.single().index)
         assertNotEquals(11, puzzles.single().index)
         assertEquals(QuestionType.REGULAR, round.questions.last().type)
         assertEquals(MUSIC, round.questions.last().category)
@@ -150,7 +149,7 @@ class SoloGameServiceTest {
 
         val puzzles = round.questions.withIndex().filter { it.value.type == QuestionType.TAARTPUZZEL }
         assertEquals(1, puzzles.size)
-        assertEquals(3, puzzles.single().index)
+        assertNotEquals(11, puzzles.single().index)
         assertEquals(MUSIC, round.questions.last().category)
     }
 
@@ -189,9 +188,11 @@ class SoloGameServiceTest {
         val service = SoloGameService(FakeQuestionRepository(records), FakeWordGenerator(listOf(word)))
         val round = service.generateRound(PuzzlePreference.PAARDENSPRONG)
 
-        assertEquals(word, round.questions.joinToString("") { it.correctLetter })
+        assertEquals(word.toList().sorted(), round.questions.map { it.correctLetter.single() }.sorted())
         // The two 'A' slots must be backed by different questions.
-        assertNotEquals(round.questions[0].correctAnswer, round.questions[1].correctAnswer)
+        val aAnswers = round.questions.filter { it.correctLetter == "A" }.map { it.correctAnswer }
+        assertEquals(2, aAnswers.size)
+        assertEquals(2, aAnswers.toSet().size)
     }
 
     @Test

@@ -104,7 +104,11 @@ class SoloGameService(
             slots[i] = pick.question
         }
 
-        return SoloRound(word = word, questions = slots.map { it!! })
+        // Present the first eleven questions in a random order so their answers'
+        // letters no longer spell the word left-to-right and the player can't read
+        // it off mid-round; the music question stays last as the muziekvraag finale.
+        val firstEleven = slots.take(lastIndex).map { it!! }.shuffled()
+        return SoloRound(word = word, questions = firstEleven + slots[lastIndex]!!)
     }
 
     private companion object {
